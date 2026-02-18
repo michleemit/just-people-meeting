@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Just People Meeting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --white: #ffffff;
+      --grey-50: #f9f9f8;
+      --grey-100: #f2f2f0;
+      --grey-200: #e4e4e0;
+      --grey-300: #c8c8c2;
+      --grey-400: #9e9e96;
+      --grey-500: #6e6e66;
+      --navy: #0f1f3d;
+      --navy-light: #1a3160;
+      --navy-pale: #e8ecf5;
+      --accent: #2450a8;
+      --success: #1a6644;
+      --error: #8b1a1a;
+      --gold: #b8942a;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --radius: 4px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 3px rgba(15,31,61,0.06), 0 1px 2px rgba(15,31,61,0.04);
+      --shadow-md: 0 4px 16px rgba(15,31,61,0.08), 0 2px 6px rgba(15,31,61,0.05);
+      --shadow-lg: 0 16px 48px rgba(15,31,61,0.12), 0 4px 16px rgba(15,31,61,0.08);
+      --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--grey-50);
+      color: var(--navy);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── SCREENS ───────────────────────────────── */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      animation: fadeIn 300ms ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── NAME ENTRY SCREEN ─────────────────────── */
+    .name-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      background: var(--white);
+    }
+    .name-screen__inner {
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo-mark {
+      width: 48px;
+      height: 48px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .logo-mark span {
+      color: white;
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 300;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .name-screen h1 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .name-screen p {
+      font-size: 14px;
+      color: var(--grey-500);
+      margin-bottom: 40px;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .field-group {
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .field-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--grey-400);
+      margin-bottom: 8px;
+    }
+    .field-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--grey-200);
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--navy);
+      background: var(--white);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .field-group input:focus {
+      border-color: var(--accent);
+    }
+    .field-error {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 6px;
+      min-height: 16px;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+    }
+    .btn-primary:hover { background: var(--navy-light); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── HOME SCREEN ────────────────────────────── */
+    .home-screen {
+      background: var(--white);
+      padding-bottom: 40px;
+    }
+    .home-header {
+      padding: 48px 24px 32px;
+      border-bottom: 1px solid var(--grey-100);
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .greeting-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--grey-400);
+      margin-bottom: 8px;
+    }
+    .greeting-name {
+      font-family: var(--font-display);
+      font-size: 44px;
+      font-weight: 400;
+      color: var(--navy);
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+    .home-play-zone {
+      padding: 40px 24px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .play-btn-wrap {
+      margin-bottom: 12px;
+    }
+    .btn-play {
+      display: block;
+      width: 100%;
+      padding: 20px 24px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-play:hover {
+      background: var(--navy-light);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(15,31,61,0.2);
+    }
+    .btn-play:active { transform: scale(0.99); }
+    .best-score-hint {
+      font-size: 12px;
+      color: var(--grey-400);
+      text-align: center;
+      margin-top: 8px;
+      font-weight: 300;
+    }
+
+    /* ── LEADERBOARD ─────────────────────────────── */
+    .leaderboard-section {
+      padding: 0 24px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--grey-400);
+      margin-bottom: 16px;
+    }
+    .leaderboard-table {
+      border: 1px solid var(--grey-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .lb-row {
+      display: grid;
+      grid-template-columns: 36px 1fr 60px 80px;
+      gap: 8px;
+      padding: 12px 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--grey-100);
+      transition: background var(--transition);
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row.lb-header {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--grey-400);
+      background: var(--grey-50);
+      padding: 10px 16px;
+    }
+    .lb-row.lb-player { background: var(--navy-pale); }
+    .lb-rank {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--grey-400);
+      text-align: center;
+    }
+    .lb-rank.top-3 { color: var(--gold); font-weight: 700; }
+    .lb-name {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--navy);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-name.lb-you { font-weight: 600; }
+    .lb-score {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      text-align: right;
+      font-family: var(--font-display);
+      font-size: 17px;
+    }
+    .lb-date {
+      font-size: 11px;
+      color: var(--grey-400);
+      text-align: right;
+      line-height: 1.3;
+    }
+    .lb-empty {
+      padding: 24px 16px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--grey-400);
+      font-style: italic;
+    }
+    .percentile-tag {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--navy-pale);
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 500;
+      text-align: center;
+    }
+    .divider {
+      height: 1px;
+      background: var(--grey-100);
+      margin: 32px 24px;
+      max-width: calc(560px - 48px);
+    }
+
+    /* ── QUESTION SCREEN ─────────────────────────── */
+    .question-screen {
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+    }
+    .question-topbar {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--grey-100);
+      max-width: 640px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .timer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .timer-display {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--navy);
+      line-height: 1;
+      min-width: 44px;
+      transition: color 500ms;
+    }
+    .timer-display.urgent { color: var(--error); }
+    .timer-bar-wrap {
+      flex: 1;
+      height: 3px;
+      background: var(--grey-200);
+      border-radius: 2px;
+      margin: 0 16px;
+      overflow: hidden;
+    }
+    .timer-bar {
+      height: 100%;
+      background: var(--navy);
+      border-radius: 2px;
+      transition: width 1s linear, background 500ms;
+    }
+    .timer-bar.urgent { background: var(--error); }
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--navy);
+      border-radius: 20px;
+      color: white;
+    }
+    .streak-badge span {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    .streak-badge .streak-num {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
+    }
+    .question-text {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.4;
+      letter-spacing: -0.2px;
+    }
+    .question-text em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    /* ── SWIPE CARDS ─────────────────────────────── */
+    .cards-zone {
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      align-items: stretch;
+      gap: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .swipe-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      flex: 0 0 40px;
+    }
+    .swipe-arrow {
+      font-size: 20px;
+      color: var(--grey-300);
+      animation: pulseArrow 2s ease-in-out infinite;
+      user-select: none;
+    }
+    .swipe-arrow.left { animation-delay: 0.3s; }
+    .swipe-arrow-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--grey-300);
+      font-weight: 500;
+    }
+    @keyframes pulseArrow {
+      0%, 100% { opacity: 0.4; transform: translateX(0); }
+      50% { opacity: 1; transform: translateX(-3px); }
+    }
+    .swipe-hint.right .swipe-arrow {
+      animation-direction: normal;
+    }
+    @keyframes pulseArrowRight {
+      0%, 100% { opacity: 0.4; transform: translateX(0); }
+      50% { opacity: 1; transform: translateX(3px); }
+    }
+    .swipe-hint.right .swipe-arrow { animation-name: pulseArrowRight; }
+
+    .person-card {
+      flex: 1;
+      border: 1.5px solid var(--grey-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 200ms ease;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .person-card:hover {
+      border-color: var(--navy);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .person-card:active {
+      transform: scale(0.98);
+    }
+    .person-card.selected-correct {
+      border-color: var(--success);
+      background: #f0faf5;
+    }
+    .person-card.selected-wrong {
+      border-color: var(--error);
+      background: #fdf2f2;
+    }
+    .card-photo-wrap {
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--grey-100);
+    }
+    .card-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      transition: transform 300ms ease;
+    }
+    .person-card:hover .card-photo-wrap img {
+      transform: scale(1.02);
+    }
+    .card-body {
+      padding: 14px;
+      text-align: center;
+    }
+    .card-name {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--navy);
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .card-title {
+      font-size: 11px;
+      color: var(--grey-400);
+      line-height: 1.3;
+    }
+
+    /* ── CORRECT SCREEN (CONFETTI) ────────────────── */
+    .correct-screen {
+      background: var(--white);
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .correct-inner {
+      text-align: center;
+      z-index: 2;
+      padding: 40px 24px;
+    }
+    .correct-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px;
+      animation: popIn 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .correct-screen h2 {
+      font-family: var(--font-display);
+      font-size: 42px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .correct-screen .streak-ticker {
+      font-size: 15px;
+      color: var(--grey-500);
+      margin-bottom: 32px;
+    }
+    .streak-ticker strong {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--navy);
+      font-weight: 500;
+    }
+    .confetti-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── WRONG SCREEN ────────────────────────────── */
+    .wrong-screen {
+      background: var(--white);
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+    .wrong-inner {
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .wrong-icon {
+      width: 72px;
+      height: 72px;
+      border: 2px solid var(--grey-200);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 28px;
+    }
+    .wrong-screen h2 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .wrong-screen p {
+      font-size: 14px;
+      color: var(--grey-500);
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+    .correct-answer-card {
+      border: 1px solid var(--grey-200);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+      background: var(--grey-50);
+    }
+    .correct-answer-card img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      flex-shrink: 0;
+      border: 2px solid var(--grey-200);
+    }
+    .correct-answer-card .answer-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .correct-answer-card .answer-title {
+      font-size: 12px;
+      color: var(--grey-500);
+      line-height: 1.4;
+    }
+    .streak-ended {
+      font-size: 14px;
+      color: var(--grey-400);
+      margin-bottom: 24px;
+    }
+    .streak-ended strong {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--navy);
+    }
+    .btn-secondary {
+      width: 100%;
+      padding: 15px 24px;
+      background: transparent;
+      color: var(--navy);
+      border: 1.5px solid var(--navy);
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-secondary:hover {
+      background: var(--navy);
+      color: white;
+    }
+
+    /* ── LOADING ─────────────────────────────────── */
+    .loading-screen {
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+    }
+    .loading-dots {
+      display: flex;
+      gap: 8px;
+    }
+    .loading-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--grey-300);
+      animation: dot-bounce 1.2s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(1) { animation-delay: 0s; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+    .loading-text {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--grey-400);
+      letter-spacing: 0.3px;
+    }
+
+    /* ── MOBILE SWIPE OVERLAY ────────────────────── */
+    .swipe-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .swipe-zone {
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .cards-zone {
+        gap: 10px;
+        padding: 16px;
+      }
+      .card-body { padding: 10px; }
+      .card-name { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Loading screen -->
+  <div id="screen-loading" class="screen loading-screen active">
+    <div class="loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="loading-text">Loading…</div>
+  </div>
+
+  <!-- Name entry screen -->
+  <div id="screen-name" class="screen name-screen">
+    <div class="name-screen__inner">
+      <div class="logo-mark"><span>P</span></div>
+      <h1>Just People<br>Meeting</h1>
+      <p>How well do you know the people at the top?<br>Enter your name to begin.</p>
+      <div class="field-group">
+        <label for="name-input">Your name</label>
+        <input type="text" id="name-input" placeholder="e.g. Alex Chen" maxlength="30" autocomplete="off" autocapitalize="words" />
+        <div class="field-error" id="name-error"></div>
+      </div>
+      <button class="btn-primary" id="name-submit-btn" onclick="submitName()">Let's go</button>
+    </div>
+  </div>
+
+  <!-- Home screen -->
+  <div id="screen-home" class="screen home-screen">
+    <div class="home-header">
+      <div class="greeting-tag">Welcome back</div>
+      <div class="greeting-name" id="home-greeting">Hello</div>
+    </div>
+    <div class="home-play-zone">
+      <div class="play-btn-wrap">
+        <button class="btn-play" id="play-btn" onclick="startGame()">
+          <span id="play-btn-text">Play</span>
+        </button>
+      </div>
+      <div class="best-score-hint" id="best-score-hint"></div>
+    </div>
+    <div style="padding: 0 24px; max-width:560px; margin: 0 auto; width:100%; margin-bottom:24px;">
+      <div class="section-title">Leaderboard</div>
+      <div class="leaderboard-table" id="leaderboard-table">
+        <div class="lb-row lb-header">
+          <div></div>
+          <div>Player</div>
+          <div style="text-align:right">Streak</div>
+          <div style="text-align:right">Date</div>
+        </div>
+        <div class="lb-empty" id="lb-loading">Loading scores…</div>
+      </div>
+      <div class="percentile-tag" id="percentile-tag" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Question screen -->
+  <div id="screen-question" class="screen question-screen">
+    <div class="question-topbar">
+      <div class="timer-row">
+        <div class="timer-display" id="timer-display">10</div>
+        <div class="timer-bar-wrap">
+          <div class="timer-bar" id="timer-bar"></div>
+        </div>
+        <div class="streak-badge">
+          <span>Streak</span>
+          <span class="streak-num" id="streak-display">0</span>
+        </div>
+      </div>
+      <div class="question-text" id="question-text">Loading question…</div>
+    </div>
+    <div class="cards-zone" id="cards-zone">
+      <div class="swipe-hint left">
+        <div class="swipe-arrow left">←</div>
+        <div class="swipe-arrow-label">Swipe</div>
+      </div>
+      <div class="person-card" id="card-left" onclick="selectCard('left')">
+        <div class="card-photo-wrap">
+          <img id="photo-left" src="" alt="" loading="lazy" />
+        </div>
+        <div class="card-body">
+          <div class="card-name" id="name-left">—</div>
+          <div class="card-title" id="title-left"></div>
+        </div>
+      </div>
+      <div class="person-card" id="card-right" onclick="selectCard('right')">
+        <div class="card-photo-wrap">
+          <img id="photo-right" src="" alt="" loading="lazy" />
+        </div>
+        <div class="card-body">
+          <div class="card-name" id="name-right">—</div>
+          <div class="card-title" id="title-right"></div>
+        </div>
+      </div>
+      <div class="swipe-hint right">
+        <div class="swipe-arrow" style="animation-name:pulseArrowRight">→</div>
+        <div class="swipe-arrow-label">Swipe</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Correct screen -->
+  <div id="screen-correct" class="screen correct-screen">
+    <canvas class="confetti-canvas" id="confetti-canvas"></canvas>
+    <div class="correct-inner">
+      <div class="correct-icon">✓</div>
+      <h2>Correct!</h2>
+      <div class="streak-ticker">
+        Streak: <strong id="correct-streak">1</strong> in a row 🔥
+      </div>
+    </div>
+  </div>
+
+  <!-- Wrong screen -->
+  <div id="screen-wrong" class="screen wrong-screen">
+    <div class="wrong-inner">
+      <div class="wrong-icon">✕</div>
+      <h2>Better next time</h2>
+      <p>The correct answer was:</p>
+      <div class="correct-answer-card">
+        <img id="wrong-correct-photo" src="" alt="" />
+        <div>
+          <div class="answer-name" id="wrong-correct-name">—</div>
+          <div class="answer-title" id="wrong-correct-title">—</div>
+        </div>
+      </div>
+      <div class="streak-ended" id="streak-ended-msg"></div>
+      <button class="btn-secondary" onclick="goHome()">Back to Home</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// PEOPLE DATA
+// ═══════════════════════════════════════════════════════
+const PEOPLE = [
+  // OPERATING COMMITTEE (13)
+  { id:"oc_01", name:"Jamie Dimon", title:"Chairman & Chief Executive Officer", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/who-we-are/our-leadership/headshots/headshot-jamiedimon.png",
+    bio:"Became CEO on January 1, 2006 and Chairman in 2007. Previously ran Bank One as Chairman & CEO starting in 2000. Began career at American Express. Earned bachelor's from Tufts University and an MBA from Harvard Business School.",
+    facts:["Tufts University undergrad, Harvard MBA","CEO since January 1, 2006","Previously ran Bank One as Chairman & CEO","Serves on Business Roundtable and Council on Foreign Relations"] },
+  { id:"oc_02", name:"Ashley Bacon", title:"Chief Risk Officer", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-abacon.jpg",
+    bio:"Chief Risk Officer since 2013. Previously served as Deputy Chief Risk Officer from June 2012 to June 2013. Former Head of Market Risk with over 20 years in financial risk management.",
+    facts:["Chief Risk Officer since 2013","Previously Deputy Chief Risk Officer","Former Head of Market Risk","Over 20 years in financial risk management"] },
+  { id:"oc_03", name:"Jeremy Barnum", title:"Chief Financial Officer", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-jeremy-barnum.jpg",
+    bio:"CFO responsible for Global Finance and Business Management. Joined the firm in 1994. Graduated from Harvard College with a degree in Chemistry. Previously Head of Global Research and CFO of the Corporate & Investment Bank.",
+    facts:["Harvard College degree in Chemistry","Joined the firm in 1994","Previously Head of Global Research for the CIB","CFO since 2021"] },
+  { id:"oc_04", name:"Lori Beer", title:"Global Chief Information Officer", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-lbeer.jpg",
+    bio:"Global Chief Information Officer overseeing the firm's technology strategy and operations worldwide. Leads thousands of technologists and drives modernization of the firm's technology infrastructure.",
+    facts:["Global Chief Information Officer","Oversees worldwide technology strategy","Leads global technology modernization","One of the highest-ranking women in technology in financial services"] },
+  { id:"oc_05", name:"Tim Berry", title:"Global Head of Corporate Responsibility & Chairman, Mid-Atlantic Region", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-tim-berry.jpg",
+    bio:"Global Head of Corporate Responsibility and Chairman of the Mid-Atlantic Region. Leads the firm's global philanthropic initiatives and community development efforts alongside regional business leadership.",
+    facts:["Dual role: Global Corporate Responsibility and regional chairman","Leads global philanthropic strategy","Oversees Mid-Atlantic region business","Drives community development investment"] },
+  { id:"oc_06", name:"Mary Callahan Erdoes", title:"CEO, Asset & Wealth Management", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-marianne-lake.jpg",
+    bio:"CEO of Asset & Wealth Management with $6.0 trillion in client assets. Joined the firm over 25 years ago and became CEO of AWM in 2009. Mathematics degree from Georgetown University and an MBA from Harvard.",
+    facts:["Georgetown Mathematics degree, Harvard MBA","CEO of Asset & Wealth Management since 2009","Oversees $6 trillion in client assets","Serves on U.S.-China Business Council board"] },
+  { id:"oc_07", name:"Stacey Friedman", title:"General Counsel", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-sfriedman.jpg",
+    bio:"General Counsel leading the firm's global legal department. Oversees all legal matters across the firm's businesses, managing thousands of lawyers worldwide.",
+    facts:["General Counsel of the firm","Leads global legal department with thousands of lawyers","Oversees regulatory, litigation, and transactional matters","Member of the Operating Committee"] },
+  { id:"oc_08", name:"Teresa Heitsenrether", title:"Chief Data & Analytics Officer", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-heitsenrether.jpg",
+    bio:"Chief Data & Analytics Officer responsible for the firm's data strategy, AI/ML initiatives, and analytics capabilities. Leads transformation of data into a strategic asset and drives AI-powered innovation.",
+    facts:["Chief Data & Analytics Officer","Leads firmwide AI and machine learning strategy","Responsible for data governance across all businesses","Drives AI-powered innovation firmwide"] },
+  { id:"oc_09", name:"Marianne Lake", title:"CEO, Consumer & Community Banking", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-marianne-lake.jpg",
+    bio:"CEO of Consumer & Community Banking, serving 84+ million consumers and 7 million small businesses. Physics degree from Reading University, UK. Previously CFO of the firm from 2013 to 2019. Co-founded the Women on the Move initiative.",
+    facts:["Physics degree from Reading University, UK","Previously CFO of the firm 2013–2019","Co-founded the Women on the Move initiative","Serves 84 million consumers and 7 million small businesses"] },
+  { id:"oc_10", name:"Robin Leopold", title:"Head of Human Resources", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-rleopold.jpg",
+    bio:"Head of Human Resources since January 2018. Previously HR Executive for the Corporate & Investment Bank. Also led the firm's Mortgage Banking Human Resources department.",
+    facts:["Head of Human Resources since January 2018","Previously HR Executive for the Corporate & Investment Bank","Led Mortgage Banking HR department","Executive Vice President of the firm"] },
+  { id:"oc_11", name:"Douglas B. Petno", title:"Co-CEO, Commercial & Investment Bank", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-dpetno.jpg",
+    bio:"Co-CEO of the Commercial & Investment Bank, jointly responsible for Global Banking, Markets, Payments and Securities Services. Been with the firm 35 years. A.B. in Biology from Wabash College, MBA from University of Rochester's Simon School.",
+    facts:["Wabash College Biology degree, Rochester Simon School MBA","Has been with the firm for 35 years","Led Commercial Banking from 2012 to 2024 across 30 countries","Member of The Nature Conservancy Global Board"] },
+  { id:"oc_12", name:"Jennifer Piepszak", title:"Chief Operating Officer", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-jpiepszak.jpg",
+    bio:"Chief Operating Officer since January 2025, overseeing Technology, Operations, Chief Administrative Office, Data & Analytics, Corporate Strategy and DEI. Previously Co-CEO of Commercial & Investment Bank. Former CFO of the firm, CEO of Card Services, and CFO of Mortgage Banking.",
+    facts:["Chief Operating Officer since January 2025","Previously Co-CEO of Commercial & Investment Bank (2021–2024)","Former CFO of the firm","Former CEO of Card Services"] },
+  { id:"oc_13", name:"Troy Rohrbaugh", title:"Co-CEO, Commercial & Investment Bank", group:"operating_committee",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-troy.jpg",
+    bio:"Co-CEO of the Commercial & Investment Bank. Joined the firm in 2005 as global head of Foreign Exchange Derivatives. Previously chaired the NY Federal Reserve Foreign Exchange Committee. Johns Hopkins B.A. in Political Science, class of 1992.",
+    facts:["Johns Hopkins B.A. Political Science, class of 1992","Joined the firm in 2005","Previously chaired NY Fed Foreign Exchange Committee","Began career on the Philadelphia Stock Exchange"] },
+
+  // BOARD OF DIRECTORS (11)
+  { id:"bd_01", name:"Linda B. Bammann", title:"Board Director (since 2013)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-lindabbammann.jpg",
+    bio:"Board Director since 2013. Previously served as Deputy Head of Risk Management. Longest-tenured independent director on the board. Brings extensive expertise in risk management and financial services.",
+    facts:["Board Director since 2013","Former Deputy Head of Risk Management at the firm","Longest-tenured independent director","Serves on the Risk Committee"] },
+  { id:"bd_02", name:"Michele G. Buck", title:"Board Director (since March 2025)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-michele-g-buck.jpg",
+    bio:"Joined the Board in March 2025. Chairman, President and CEO of The Hershey Company with over 30 years of consumer-packaged goods experience. Previously COO at Hershey and held senior roles at Kraft/Nabisco.",
+    facts:["Board Director since March 2025","Chairman, President and CEO of The Hershey Company","Over 30 years of consumer goods experience","Most recently elected board member"] },
+  { id:"bd_03", name:"Stephen B. Burke", title:"Board Director (since 2004)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-stephenbburke.jpg",
+    bio:"Board Director since 2004. Former CEO of NBCUniversal from 2011 to 2020. Previously COO of Comcast Corporation. Second-longest serving board member after Jamie Dimon among independents.",
+    facts:["Board Director since 2004","Former CEO of NBCUniversal (2011–2020)","Previously COO of Comcast Corporation","Second-longest serving independent director"] },
+  { id:"bd_04", name:"Alicia Boler Davis", title:"Board Director (since 2023)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-alicia-boler-davis.jpg",
+    bio:"Board Director since 2023. EVP of Global Customer Fulfillment at Amazon. Previously VP of Global Manufacturing at General Motors. Brings deep operational, engineering and manufacturing expertise.",
+    facts:["Board Director since 2023","EVP of Global Customer Fulfillment at Amazon","Former VP of Global Manufacturing at General Motors","Brings engineering and operational expertise"] },
+  { id:"bd_05", name:"Alex Gorsky", title:"Board Director (since 2022)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-alex-gorsky.jpg",
+    bio:"Board Director since 2022. Former Chairman and CEO of Johnson & Johnson from 2012 to 2022. Holds an MBA from the Wharton School. Former U.S. Army officer. Led J&J's expansion of pharmaceutical, medical device, and consumer health businesses.",
+    facts:["Board Director since 2022","Former Chairman & CEO of Johnson & Johnson (2012–2022)","MBA from Wharton School","Former U.S. Army officer"] },
+  { id:"bd_06", name:"Mellody Hobson", title:"Board Director (since 2018)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-mellody-hobson.jpg",
+    bio:"Board Director since 2018. Co-CEO and President of Ariel Investments, one of the largest minority-owned investment firms in the US. Prominent advocate for financial literacy and diversity in investment.",
+    facts:["Board Director since 2018","Co-CEO and President of Ariel Investments","One of the most prominent investors in the US","Prominent advocate for financial literacy"] },
+  { id:"bd_07", name:"Phebe N. Novakovic", title:"Board Director (since 2020)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-phebe-novakovic.jpg",
+    bio:"Board Director since 2020. Chairman and CEO of General Dynamics, a global aerospace and defense company. Previously worked at the CIA and U.S. Department of Defense. MBA from Wharton School.",
+    facts:["Board Director since 2020","Chairman and CEO of General Dynamics","Former CIA and Department of Defense official","MBA from the Wharton School"] },
+  { id:"bd_08", name:"Virginia M. Rometty", title:"Board Director (since 2020)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-ginni.jpg",
+    bio:"Board Director since 2020. Former Chairman, President and CEO of IBM from 2012 to 2020. Led IBM's transformation toward cloud computing and AI including Watson. Computer science degree from Northwestern University.",
+    facts:["Board Director since 2020","Former Chairman, President and CEO of IBM (2012–2020)","Led IBM's transformation to cloud and AI","Computer science degree from Northwestern University"] },
+  { id:"bd_09", name:"Brad D. Smith", title:"Board Director (since 2025)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-brad-d-smith.png",
+    bio:"Board Director since 2025. Former President and CEO of Intuit from 2008 to 2019, overseeing the company's digital transformation. Currently Executive Chairman of Intuit.",
+    facts:["Board Director since 2025","Former President & CEO of Intuit (2008–2019)","Led Intuit's digital transformation","Currently Executive Chairman of Intuit"] },
+  { id:"bd_10", name:"Mark A. Weinberger", title:"Board Director (since 2024)", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-mark-weinberger.jpg",
+    bio:"Board Director since 2024. Former Global Chairman and CEO of EY from 2013 to 2019. Previously served as U.S. Treasury Assistant Secretary for Tax Policy. Degrees from Case Western Reserve University.",
+    facts:["Board Director since 2024","Former Global Chairman & CEO of EY (2013–2019)","Former U.S. Treasury Assistant Secretary for Tax Policy","Degrees from Case Western Reserve University"] },
+  { id:"bd_11", name:"Jamie Dimon", title:"Chairman of the Board & CEO", group:"board",
+    photo:"https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/who-we-are/our-leadership/headshots/headshot-jamiedimon.png",
+    bio:"Serves as both Chairman of the Board (since 2007) and CEO (since 2006). The only current member serving in both roles simultaneously. Longest-tenured large-bank CEO in the United States.",
+    facts:["Board Chairman since 2007","Only member serving as both Chairman and CEO","Longest-tenured large-bank CEO in the US","Joined the board upon the 2004 Bank One merger"] },
+
+  // CHASE EXECUTIVES (20)
+  { id:"ce_01", name:"Allison Beer", title:"CEO, Card Services & Connected Commerce", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/allison-beer-thumb-new-thumb.jpg.thumb.319.319.png",
+    bio:"CEO of Card & Connected Commerce, overseeing a credit card franchise with more than 59 million active accounts and 73+ million digitally active customers. Joined in 2017 from American Express. Yale University graduate. 2025–26 chair of American Heart Association's Go Red for Women NYC.",
+    facts:["Yale University graduate","Joined the firm in 2017 from American Express","Leads credit card franchise with 59+ million active accounts","2025–26 chair of AHA Go Red for Women NYC"] },
+  { id:"ce_02", name:"Ben Walter", title:"CEO, Chase Business Banking", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/benwalte-317x179.jpg.thumb.319.319.png",
+    bio:"CEO of Chase Business Banking, leading one of the largest small business banking franchises in the US. Serves millions of small business owners with lending, payments, and financial services.",
+    facts:["CEO of Chase Business Banking","Leads one of the US's largest small business banking franchises","Oversees small business lending and payments","Member of Consumer & Community Banking leadership"] },
+  { id:"ce_03", name:"Bori Cox", title:"Chief Financial Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/thumbnail-bori-cox.jpg.thumb.319.319.png",
+    bio:"Chief Financial Officer for Chase's consumer businesses, responsible for financial planning, reporting, and strategic analysis across retail banking, credit card, and related consumer financial services.",
+    facts:["CFO for Chase consumer businesses","Responsible for financial planning and reporting","Oversees financial management across consumer banking","Member of Chase leadership team"] },
+  { id:"ce_04", name:"Carla Hassan", title:"Chief Marketing Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/carla-hassan-319x179.jpg.thumb.319.319.png",
+    bio:"Chief Marketing Officer for Chase, responsible for all marketing strategy and brand management. Drives customer acquisition, engagement, and loyalty across Chase's consumer and small business products.",
+    facts:["Chief Marketing Officer for Chase","Leads all marketing strategy and brand management","Drives customer acquisition and loyalty programs","Oversees Chase's advertising campaigns"] },
+  { id:"ce_05", name:"Danielle Bartolomei", title:"Chief Compliance Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/danielle-bartolomei-thumbnail.jpg.thumb.319.319.png",
+    bio:"Chief Compliance Officer for Chase, ensuring compliance with laws, regulations, and internal policies across all consumer banking businesses.",
+    facts:["Chief Compliance Officer for Chase","Responsible for regulatory compliance","Leads compliance risk management","Promotes culture of integrity"] },
+  { id:"ce_06", name:"Gill Haus", title:"Chief Information Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/gill-haus-v1.jpg.thumb.319.319.png",
+    bio:"Chief Information Officer for Chase, overseeing technology strategy, engineering, and digital product development. Appointed CIO in 2021 when Allison Beer moved to head Card Services.",
+    facts:["Chief Information Officer for Chase","Oversees technology strategy and engineering","Appointed CIO in 2021","Leads digital product development for Chase's banking platforms"] },
+  { id:"ce_07", name:"Jennifer Roberts", title:"CEO, Consumer Banking", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/jroberts-thumb.jpg.thumb.319.319.png",
+    bio:"CEO of Chase Consumer Banking. Joined Chase in 1996. Executive sponsor of Chase's Hispanic Leadership Forum. Previously led Digital Products and Chase Pay. B.A. from Towson State University and MBA from University of North Texas.",
+    facts:["Joined Chase in 1996","Towson State and University of North Texas MBA","Executive sponsor of Chase's Hispanic Leadership Forum","Previously led Digital Products and Chase Pay"] },
+  { id:"ce_08", name:"Jon Shaw", title:"Chief Auditor, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/jon-shaw-thumbnail.jpg.thumb.319.319.png",
+    bio:"Chief Auditor for Chase, responsible for internal audit across consumer and business banking operations. Provides independent assurance on the effectiveness of risk management and internal controls.",
+    facts:["Chief Auditor for Chase","Provides independent risk management assurance","Oversees internal controls assessment","Ensures audit independence across consumer banking"] },
+  { id:"ce_09", name:"Julie Bohan", title:"Head of Human Resources, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/julie-bohan-thumbnail.png.thumb.319.319.png",
+    bio:"Head of Human Resources for Chase, responsible for talent strategy, employee experience, and people programs across Chase's consumer banking businesses.",
+    facts:["Head of Human Resources for Chase","Responsible for talent strategy and employee experience","Leads HR for tens of thousands of Chase employees","Oversees hiring, development, and culture programs"] },
+  { id:"ce_10", name:"Kristin Lemkau", title:"CEO, J.P. Morgan Wealth Management", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/kristin-lemkau-thumbnail.jpg.thumb.319.319.png",
+    bio:"CEO of J.P. Morgan Wealth Management. Served as Chief Marketing Officer for nearly a decade before transitioning to lead the wealth management business. Known for brand-building and digital innovation.",
+    facts:["CEO of J.P. Morgan Wealth Management","Former Chief Marketing Officer for nearly a decade","Known for brand-building and digital innovation","Leads wealth management for mass-affluent clients"] },
+  { id:"ce_11", name:"Leslie Wims Morris", title:"CEO, Chase Auto", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/leslie-wims-morris-thumbnail.png.thumb.319.319.png",
+    bio:"CEO of Chase Auto since early 2025. Previously president of private label captive finance, building white-labeled lending with global manufacturers across 50 countries. Former head of corporate development for Consumer & Community Banking.",
+    facts:["CEO of Chase Auto since early 2025","Previously president of private label captive finance","Built white-labeled auto lending across 50 countries","Former head of CCB corporate development"] },
+  { id:"ce_12", name:"Mark Brucker", title:"Chief Risk Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/mark-brucker-thumb.jpg.thumb.319.319.png",
+    bio:"Chief Risk Officer for Chase, responsible for risk management across all consumer and business banking products including credit risk, operational risk, and compliance risk.",
+    facts:["Chief Risk Officer for Chase","Responsible for credit, operational, and compliance risk","Leads risk management across all consumer banking products","Reports to Consumer & Community Banking leadership"] },
+  { id:"ce_13", name:"Matt Kane", title:"Head of Strategy & Business Development, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/matt-kane-thumbnail-new.jpg.thumb.319.319.png",
+    bio:"Head of Strategy & Business Development for Chase, responsible for corporate strategy, strategic partnerships, and business development initiatives for consumer and small business banking.",
+    facts:["Head of Strategy & Business Development","Responsible for corporate strategy and partnerships","Drives strategic planning for Chase businesses","Evaluates growth and acquisition opportunities"] },
+  { id:"ce_14", name:"Mike Ashworth", title:"Chief Operations Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/mike-ashworth-thumb.jpg.thumb.319.319.png",
+    bio:"Chief Operations Officer for Chase, responsible for operational delivery across consumer banking including branch banking, customer service, digital operations, and back-office processing.",
+    facts:["Chief Operations Officer for Chase","Leads branch, digital, and customer service operations","Oversees back-office processing for millions of customers","Responsible for operational delivery across consumer banking"] },
+  { id:"ce_15", name:"Pablo Rodriguez", title:"Chief Communications Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/pablo-thumbnail.png.thumb.319.319.png",
+    bio:"Chief Communications Officer for Chase, responsible for external and internal communications, public affairs, and media relations. Manages reputation and communicates strategies and values.",
+    facts:["Chief Communications Officer for Chase","Responsible for external and internal communications","Manages media relations and public affairs","Oversees Chase's brand communications"] },
+  { id:"ce_16", name:"Pauline Saunders", title:"Chief Control Manager, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/pauline_thumbnail.jpg.thumb.319.319.png",
+    bio:"Chief Control Manager for Chase, responsible for the firm's controls framework across consumer banking businesses. Ensures appropriate internal controls are in place across all Chase products and services.",
+    facts:["Chief Control Manager for Chase","Responsible for controls framework across consumer banking","Ensures appropriate internal controls across all products","Manages operational and compliance risk controls"] },
+  { id:"ce_17", name:"Peter Muriungi", title:"CEO, Connected Commerce", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/peter-thumbnail.png.thumb.319.319.png",
+    bio:"CEO of Chase Connected Commerce since early 2025. Previously CEO of Chase Auto. His team oversees digital commerce, travel, dining, and shopping platforms connecting 73+ million digitally active customers with brands.",
+    facts:["CEO of Chase Connected Commerce since 2025","Previously CEO of Chase Auto","Oversees travel, dining, and shopping platforms","Connects 73+ million digitally active customers with brands"] },
+  { id:"ce_18", name:"Rohan Amin", title:"Chief Product Officer, Chase", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/rohan-amin-thumb.jpg.thumb.319.319.png",
+    bio:"Chief Product Officer at Chase, responsible for product strategy and digital experience for Chase's 65+ million digitally active customers. Joined from Lockheed Martin's cybersecurity division in 2014.",
+    facts:["Chief Product Officer at Chase","Responsible for digital experience for 65+ million customers","Joined from Lockheed Martin cybersecurity in 2014","Appointed CPO when Allison Beer moved to head Card Services"] },
+  { id:"ce_19", name:"Sean Grzebin", title:"CEO, Home Lending", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/grzebin-thumbnail-319x179.png.thumb.319.319.png",
+    bio:"CEO of Chase Home Lending, responsible for one of the nation's largest mortgage businesses. Manages home purchase and refinancing loans, originations, servicing, and customer experience for millions of homeowners.",
+    facts:["CEO of Chase Home Lending","Leads one of the nation's largest mortgage businesses","Manages mortgage originations and servicing for millions","Responsible for home purchase and refinancing loans"] },
+  { id:"ce_20", name:"Marianne Lake", title:"CEO, Consumer & Community Banking", group:"chase_executive",
+    photo:"https://media.chase.com/content/dam/chase/media-center/bios/marianne-lake-thumb.jpg.thumb.319.319.png",
+    bio:"CEO of Consumer & Community Banking overseeing all Chase consumer businesses: retail branches, digital banking, credit cards, home lending, auto, and small business. Serves 84 million consumers and 7 million small businesses.",
+    facts:["CEO overseeing all Chase consumer banking businesses","Serves 84 million consumers and 7 million small businesses","Co-founder of the Women on the Move initiative","Previously CFO of the firm from 2013 to 2019"] }
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let state = {
+  deviceId: null,
+  playerName: null,
+  currentStreak: 0,
+  currentQuestion: null,
+  questionPair: null,   // { left: person, right: person, correct: 'left'|'right' }
+  timerInterval: null,
+  timerSeconds: 10,
+  usedQuestions: new Set(),
+  canAnswer: true,
+  leaderboard: []
+};
+
+// ═══════════════════════════════════════════════════════
+// DEVICE ID
+// ═══════════════════════════════════════════════════════
+function getDeviceId() {
+  let id = sessionStorage.getItem('jpm_device_id');
+  if (!id) {
+    id = 'dev_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    sessionStorage.setItem('jpm_device_id', id);
+  }
+  return id;
+}
+
+// ═══════════════════════════════════════════════════════
+// STORAGE HELPERS
+// ═══════════════════════════════════════════════════════
+async function storageGet(key, shared=false) {
+  try {
+    if (window.storage) {
+      const r = await window.storage.get(key, shared);
+      return r ? JSON.parse(r.value) : null;
+    }
+  } catch(e) {}
+  return null;
+}
+
+async function storageSet(key, value, shared=false) {
+  try {
+    if (window.storage) {
+      await window.storage.set(key, JSON.stringify(value), shared);
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+async function storageList(prefix, shared=false) {
+  try {
+    if (window.storage) {
+      const r = await window.storage.list(prefix, shared);
+      return r ? r.keys : [];
+    }
+  } catch(e) {}
+  return [];
+}
+
+// ═══════════════════════════════════════════════════════
+// LEADERBOARD
+// ═══════════════════════════════════════════════════════
+async function loadLeaderboard() {
+  try {
+    const keys = await storageList('score:', true);
+    const entries = [];
+    for (const key of keys) {
+      const data = await storageGet(key, true);
+      if (data) entries.push(data);
+    }
+    entries.sort((a, b) => b.topScore - a.topScore);
+    state.leaderboard = entries;
+    return entries;
+  } catch(e) {
+    return [];
+  }
+}
+
+async function saveScore(name, score) {
+  const key = 'score:' + name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const existing = await storageGet(key, true);
+  if (!existing || score > existing.topScore) {
+    await storageSet(key, {
+      name: name,
+      topScore: score,
+      achievedAt: new Date().toISOString(),
+      deviceId: state.deviceId
+    }, true);
+  }
+}
+
+function renderLeaderboard() {
+  const table = document.getElementById('leaderboard-table');
+  const entries = state.leaderboard;
+
+  let html = `<div class="lb-row lb-header">
+    <div>#</div><div>Player</div><div style="text-align:right">Best</div><div style="text-align:right">Date</div>
+  </div>`;
+
+  const top10 = entries.slice(0, 10);
+  const playerName = state.playerName;
+  let playerInTop10 = top10.some(e => e.name === playerName);
+  let playerEntry = entries.find(e => e.name === playerName);
+  let playerRank = entries.findIndex(e => e.name === playerName) + 1;
+
+  if (top10.length === 0) {
+    html += `<div class="lb-empty">No scores yet. Be the first!</div>`;
+  } else {
+    top10.forEach((entry, i) => {
+      const rank = i + 1;
+      const isPlayer = entry.name === playerName;
+      const dateStr = entry.achievedAt ? new Date(entry.achievedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '—';
+      html += `<div class="lb-row ${isPlayer ? 'lb-player' : ''}">
+        <div class="lb-rank ${rank <= 3 ? 'top-3' : ''}">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}</div>
+        <div class="lb-name ${isPlayer ? 'lb-you' : ''}">${escHtml(entry.name)}${isPlayer ? ' (you)' : ''}</div>
+        <div class="lb-score">${entry.topScore}</div>
+        <div class="lb-date">${dateStr}</div>
+      </div>`;
+    });
+
+    // Show player's row if outside top 10
+    if (!playerInTop10 && playerEntry) {
+      html += `<div class="lb-row" style="background:var(--grey-50);border-top:2px dashed var(--grey-200)">
+        <div class="lb-rank">${playerRank}</div>
+        <div class="lb-name lb-you">${escHtml(playerEntry.name)} (you)</div>
+        <div class="lb-score">${playerEntry.topScore}</div>
+        <div class="lb-date">${playerEntry.achievedAt ? new Date(playerEntry.achievedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '—'}</div>
+      </div>`;
+    }
+  }
+
+  table.innerHTML = html;
+
+  // Percentile
+  const ptag = document.getElementById('percentile-tag');
+  if (playerEntry && entries.length > 1) {
+    const below = entries.filter(e => e.topScore < playerEntry.topScore).length;
+    const pct = Math.round((below / (entries.length - 1)) * 100);
+    if (pct > 0) {
+      ptag.textContent = `You are better than ${pct}% of players`;
+      ptag.style.display = '';
+    } else { ptag.style.display = 'none'; }
+  } else { ptag.style.display = 'none'; }
+}
+
+// ═══════════════════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ═══════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+async function init() {
+  state.deviceId = getDeviceId();
+  
+  // Try to find existing player
+  const savedName = await storageGet('player:' + state.deviceId);
+  
+  if (savedName) {
+    state.playerName = savedName;
+    await showHome();
+  } else {
+    showScreen('name');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// NAME SUBMISSION
+// ═══════════════════════════════════════════════════════
+async function submitName() {
+  const input = document.getElementById('name-input');
+  const errEl = document.getElementById('name-error');
+  const name = input.value.trim();
+  
+  errEl.textContent = '';
+  
+  if (!name || name.length < 2) {
+    errEl.textContent = 'Please enter at least 2 characters.';
+    return;
+  }
+
+  const btn = document.getElementById('name-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+
+  // Check if name is taken
+  const key = 'score:' + name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const existing = await storageGet(key, true);
+  if (existing && existing.deviceId !== state.deviceId) {
+    errEl.textContent = 'That name is already taken. Please choose another.';
+    btn.disabled = false;
+    btn.textContent = 'Let\'s go';
+    return;
+  }
+
+  // Save player name
+  state.playerName = name;
+  await storageSet('player:' + state.deviceId, name);
+  
+  btn.disabled = false;
+  btn.textContent = 'Let\'s go';
+
+  await showHome();
+}
+
+document.getElementById('name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitName();
+});
+
+// ═══════════════════════════════════════════════════════
+// HOME SCREEN
+// ═══════════════════════════════════════════════════════
+async function showHome() {
+  document.getElementById('home-greeting').textContent = 'Hi, ' + state.playerName + '.';
+  
+  // Load leaderboard
+  document.getElementById('lb-loading') && (document.getElementById('leaderboard-table').innerHTML = '<div class="lb-empty" id="lb-loading">Loading scores…</div>');
+  
+  const playerKey = 'score:' + state.playerName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const playerData = await storageGet(playerKey, true);
+  
+  const playBtnText = document.getElementById('play-btn-text');
+  const hint = document.getElementById('best-score-hint');
+  
+  if (playerData && playerData.topScore > 0) {
+    playBtnText.textContent = 'Play Again';
+    hint.textContent = `Your best: ${playerData.topScore} in a row`;
+  } else {
+    playBtnText.textContent = 'Play';
+    hint.textContent = 'Can you name them all?';
+  }
+
+  await loadLeaderboard();
+  renderLeaderboard();
+  showScreen('home');
+}
+
+function goHome() {
+  clearTimer();
+  state.currentStreak = 0;
+  showHome();
+}
+
+// ═══════════════════════════════════════════════════════
+// GAME LOGIC
+// ═══════════════════════════════════════════════════════
+function startGame() {
+  state.currentStreak = 0;
+  state.usedQuestions.clear();
+  loadNextQuestion();
+}
+
+async function loadNextQuestion() {
+  showScreen('loading');
+  clearTimer();
+  state.canAnswer = true;
+
+  const q = await generateQuestion(state.currentStreak);
+  if (!q) {
+    // All questions used, reset
+    state.usedQuestions.clear();
+    const q2 = await generateQuestion(state.currentStreak);
+    setupQuestion(q2);
+    return;
+  }
+  setupQuestion(q);
+}
+
+function setupQuestion(q) {
+  state.currentQuestion = q;
+  state.questionPair = q.pair;
+
+  const { left, right, correct } = q.pair;
+
+  // Set question text
+  document.getElementById('question-text').innerHTML = q.text;
+
+  // Set photos and names
+  document.getElementById('photo-left').src = left.photo;
+  document.getElementById('photo-left').alt = left.name;
+  document.getElementById('name-left').textContent = q.showNames ? left.name : '?';
+  document.getElementById('title-left').textContent = q.showTitles ? left.title : '';
+
+  document.getElementById('photo-right').src = right.photo;
+  document.getElementById('photo-right').alt = right.name;
+  document.getElementById('name-right').textContent = q.showNames ? right.name : '?';
+  document.getElementById('title-right').textContent = q.showTitles ? right.title : '';
+
+  // Reset card states
+  document.getElementById('card-left').className = 'person-card';
+  document.getElementById('card-right').className = 'person-card';
+
+  // Update streak
+  document.getElementById('streak-display').textContent = state.currentStreak;
+
+  // Show screen
+  showScreen('question');
+
+  // Start timer
+  startTimer(q.timeLimit || 10);
+}
+
+function selectCard(side) {
+  if (!state.canAnswer) return;
+  state.canAnswer = false;
+  clearTimer();
+
+  const correct = state.currentQuestion.pair.correct;
+  const isCorrect = side === correct;
+
+  const cardEl = document.getElementById('card-' + side);
+  cardEl.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+
+  setTimeout(() => {
+    if (isCorrect) {
+      state.currentStreak++;
+      showCorrect();
+    } else {
+      showWrong();
+    }
+  }, 400);
+}
+
+// Timer
+function startTimer(seconds) {
+  state.timerSeconds = seconds;
+  const display = document.getElementById('timer-display');
+  const bar = document.getElementById('timer-bar');
+  const totalTime = seconds;
+
+  display.textContent = seconds;
+  display.className = 'timer-display';
+  bar.style.width = '100%';
+  bar.className = 'timer-bar';
+
+  state.timerInterval = setInterval(() => {
+    state.timerSeconds--;
+    display.textContent = state.timerSeconds;
+    const pct = (state.timerSeconds / totalTime) * 100;
+    bar.style.width = pct + '%';
+
+    if (state.timerSeconds <= 3) {
+      display.classList.add('urgent');
+      bar.classList.add('urgent');
+    }
+
+    if (state.timerSeconds <= 0) {
+      clearTimer();
+      if (state.canAnswer) {
+        state.canAnswer = false;
+        showWrong(); // timeout = wrong answer
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CORRECT SCREEN
+// ═══════════════════════════════════════════════════════
+function showCorrect() {
+  document.getElementById('correct-streak').textContent = state.currentStreak;
+  showScreen('correct');
+  launchConfetti();
+  setTimeout(() => {
+    loadNextQuestion();
+  }, 1800);
+}
+
+// ═══════════════════════════════════════════════════════
+// WRONG SCREEN
+// ═══════════════════════════════════════════════════════
+async function showWrong() {
+  clearTimer();
+  const pair = state.currentQuestion.pair;
+  const correctPerson = pair[pair.correct];
+
+  document.getElementById('wrong-correct-photo').src = correctPerson.photo;
+  document.getElementById('wrong-correct-name').textContent = correctPerson.name;
+  document.getElementById('wrong-correct-title').textContent = correctPerson.title;
+
+  const msg = document.getElementById('streak-ended-msg');
+  if (state.currentStreak > 0) {
+    msg.innerHTML = `You got <strong>${state.currentStreak}</strong> in a row.`;
+  } else {
+    msg.innerHTML = `Keep going — you'll get it!`;
+  }
+
+  // Save score
+  if (state.currentStreak > 0) {
+    await saveScore(state.playerName, state.currentStreak);
+  }
+
+  showScreen('wrong');
+}
+
+// ═══════════════════════════════════════════════════════
+// QUESTION GENERATION (Claude API)
+// ═══════════════════════════════════════════════════════
+async function generateQuestion(streak) {
+  // Pick two different people
+  const pool = PEOPLE.filter(p => !state.usedQuestions.has(p.id));
+  if (pool.length < 2) return null;
+
+  // Difficulty: as streak increases, pick from same group (harder)
+  let candidates;
+  if (streak >= 10) {
+    // Very hard: same group
+    const groups = ['operating_committee', 'board', 'chase_executive'];
+    const g = groups[Math.floor(Math.random() * groups.length)];
+    candidates = PEOPLE.filter(p => p.group === g);
+    if (candidates.length < 2) candidates = PEOPLE;
+  } else if (streak >= 5) {
+    // Medium: prefer same group
+    const groupedPool = pool.filter(p => p.group === pool[0].group);
+    candidates = groupedPool.length >= 2 ? groupedPool : pool;
+  } else {
+    candidates = pool;
+  }
+
+  // Shuffle and pick 2
+  const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+  const person1 = shuffled[0];
+  const person2 = shuffled[1];
+
+  // Mark as used
+  state.usedQuestions.add(person1.id);
+
+  // Determine correct person and question via AI
+  try {
+    const question = await fetchAIQuestion(person1, person2, streak);
+    return question;
+  } catch(e) {
+    // Fallback question
+    return buildFallbackQuestion(person1, person2, streak);
+  }
+}
+
+async function fetchAIQuestion(person1, person2, streak) {
+  const difficulty = streak < 3 ? 'easy' : streak < 7 ? 'medium' : 'hard';
+  const timeLimit = streak < 3 ? 10 : streak < 7 ? 8 : 6;
+
+  const prompt = `You are generating questions for a face-recognition memory game called "Just People Meeting". 
+The player sees two photos and must pick the correct one based on the question.
+
+Person A: ${person1.name} — ${person1.title}
+Bio: ${person1.bio}
+Key facts: ${person1.facts.join('; ')}
+
+Person B: ${person2.name} — ${person2.title}
+Bio: ${person2.bio}
+Key facts: ${person2.facts.join('; ')}
+
+Difficulty: ${difficulty} (streak: ${streak})
+- Easy: ask about title or obvious fact
+- Medium: ask about a specific career detail, education, or achievement  
+- Hard: ask about a subtle or obscure bio detail
+
+Generate ONE question that:
+1. Has a DEFINITIVE correct answer pointing to Person A or Person B
+2. Is psychologically engaging and creates tension
+3. Uses "who" phrasing — e.g. "Who earned their degree from Harvard Business School?"
+4. Does NOT mention both names or give away the answer in the question
+5. Uses compelling language that creates urgency
+
+Respond with ONLY a JSON object (no markdown, no explanation):
+{
+  "question": "your question text here",
+  "correctPerson": "A" or "B",
+  "showNames": false,
+  "showTitles": false
+}`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const data = await response.json();
+  const text = data.content.map(c => c.text || '').join('');
+  const clean = text.replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(clean);
+
+  const correctPerson = parsed.correctPerson === 'A' ? person1 : person2;
+  const wrongPerson = parsed.correctPerson === 'A' ? person2 : person1;
+
+  // Randomize left/right placement
+  const correctSide = Math.random() < 0.5 ? 'left' : 'right';
+  const pair = correctSide === 'left'
+    ? { left: correctPerson, right: wrongPerson, correct: 'left' }
+    : { left: wrongPerson, right: correctPerson, correct: 'right' };
+
+  return {
+    text: parsed.question,
+    pair,
+    showNames: parsed.showNames || false,
+    showTitles: parsed.showTitles || false,
+    timeLimit
+  };
+}
+
+function buildFallbackQuestion(person1, person2, streak) {
+  const timeLimit = streak < 3 ? 10 : streak < 7 ? 8 : 6;
+  const correctPerson = Math.random() < 0.5 ? person1 : person2;
+  const fact = correctPerson.facts[Math.floor(Math.random() * correctPerson.facts.length)];
+  
+  const templates = [
+    `Who is the ${correctPerson.title}?`,
+    `Who ${fact.toLowerCase()}?`,
+    `Which of these two is the ${correctPerson.title}?`,
+  ];
+  const text = templates[Math.floor(Math.random() * templates.length)];
+  
+  const wrongPerson = correctPerson === person1 ? person2 : person1;
+  const correctSide = Math.random() < 0.5 ? 'left' : 'right';
+  const pair = correctSide === 'left'
+    ? { left: correctPerson, right: wrongPerson, correct: 'left' }
+    : { left: wrongPerson, right: correctPerson, correct: 'right' };
+
+  return { text, pair, showNames: false, showTitles: false, timeLimit };
+}
+
+// ═══════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  const colors = ['#0f1f3d','#2450a8','#b8942a','#4a7fcb','#e4e4e0'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height * 0.5,
+    w: Math.random() * 8 + 4,
+    h: Math.random() * 14 + 6,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 4,
+    vy: Math.random() * 5 + 3,
+    rot: Math.random() * 360,
+    rotV: (Math.random() - 0.5) * 8
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.rotV;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - (p.y / canvas.height));
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 90) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  requestAnimationFrame(draw);
+}
+
+// ═══════════════════════════════════════════════════════
+// TOUCH / SWIPE SUPPORT
+// ═══════════════════════════════════════════════════════
+let touchStartX = null;
+document.getElementById('cards-zone').addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+}, {passive: true});
+document.getElementById('cards-zone').addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  touchStartX = null;
+  if (Math.abs(dx) > 60) {
+    selectCard(dx < 0 ? 'right' : 'left');
+  }
+}, {passive: true});
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
