@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Just People Meeting</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: #ffffff;
+    color: #0a1628;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen { display: none; width: 100%; max-width: 480px; padding: 32px 24px; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
+  .screen.active { display: flex; }
+
+  /* TYPOGRAPHY */
+  h1 { font-size: 28px; font-weight: 400; color: #0a1628; letter-spacing: 1px; margin-bottom: 8px; }
+  h2 { font-size: 22px; font-weight: 400; color: #0a1628; margin-bottom: 16px; }
+  p { font-size: 15px; color: #4a5568; line-height: 1.6; }
+  .subtitle { font-size: 13px; color: #8a9ab5; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
+
+  /* INPUTS */
+  input[type=text] {
+    width: 100%; padding: 14px 18px; border: 1.5px solid #d0dae8;
+    border-radius: 8px; font-size: 16px; color: #0a1628;
+    outline: none; margin: 16px 0;
+    transition: border-color 0.2s;
+  }
+  input[type=text]:focus { border-color: #0a1628; }
+
+  /* BUTTONS */
+  .btn {
+    background: #0a1628; color: #fff; border: none;
+    padding: 16px 40px; border-radius: 8px; font-size: 16px;
+    letter-spacing: 1px; cursor: pointer; margin: 8px 0;
+    width: 100%; transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn.outline {
+    background: transparent; color: #0a1628;
+    border: 1.5px solid #0a1628;
+  }
+
+  /* HOME */
+  .greeting { font-size: 32px; font-weight: 300; margin-bottom: 4px; }
+  .greeting span { font-weight: 600; }
+  .percentile { font-size: 13px; color: #8a9ab5; margin-top: 8px; }
+
+  /* LEADERBOARD */
+  .leaderboard { width: 100%; margin: 24px 0; }
+  .lb-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8a9ab5; margin-bottom: 12px; }
+  .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f4f8; font-size: 14px; }
+  .lb-row.highlight { font-weight: 600; color: #0a1628; }
+  .lb-rank { width: 24px; color: #8a9ab5; font-size: 12px; }
+  .lb-name { flex: 1; padding: 0 8px; }
+  .lb-score { font-variant-numeric: tabular-nums; }
+  .lb-date { font-size: 11px; color: #8a9ab5; margin-left: 8px; }
+
+  /* GAME */
+  .question-text {
+    font-size: 17px; text-align: center; color: #0a1628;
+    margin-bottom: 24px; line-height: 1.5; min-height: 60px;
+  }
+  .timer-bar-wrap { width: 100%; height: 4px; background: #f0f4f8; border-radius: 2px; margin-bottom: 20px; }
+  .timer-bar { height: 4px; background: #0a1628; border-radius: 2px; transition: width 0.1s linear; }
+  .timer-text { font-size: 12px; color: #8a9ab5; text-align: right; margin-bottom: 8px; }
+
+  .photos-wrap { display: flex; width: 100%; gap: 12px; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .photo-option {
+    flex: 1; cursor: pointer; border-radius: 10px; overflow: hidden;
+    border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+  }
+  .photo-option:hover { border-color: #0a1628; transform: scale(1.02); }
+  .photo-option img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+
+  .swipe-hint { display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 12px; color: #8a9ab5; }
+  .arrow { font-size: 20px; }
+
+  .streak-bar { margin-top: 20px; text-align: center; }
+  .streak-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8a9ab5; margin-bottom: 6px; }
+  .streak-count { font-size: 36px; font-weight: 300; color: #0a1628; }
+
+  /* CONFETTI */
+  #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; display: none; }
+
+  /* RESULT */
+  .result-icon { font-size: 48px; margin-bottom: 16px; }
+  .result-title { font-size: 28px; font-weight: 300; margin-bottom: 8px; }
+
+  /* NAME SCREEN */
+  .name-error { color: #c0392b; font-size: 13px; margin-top: -8px; }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- REGISTER SCREEN -->
+<div class="screen active" id="screen-register">
+  <div class="subtitle">Welcome</div>
+  <h1>Just People<br>Meeting</h1>
+  <p style="text-align:center; margin: 16px 0 8px;">Enter a unique display name to begin.</p>
+  <input type="text" id="register-name" placeholder="Your name" maxlength="24" />
+  <div class="name-error" id="name-error" style="display:none">That name is taken. Please choose another.</div>
+  <button class="btn" onclick="registerPlayer()">Continue</button>
+</div>
+
+<!-- HOME SCREEN -->
+<div class="screen" id="screen-home">
+  <div class="greeting">Hi, <span id="home-name"></span>!</div>
+  <div class="subtitle">Just People Meeting</div>
+
+  <button class="btn" id="play-btn" onclick="startGame()">Play</button>
+
+  <div class="leaderboard">
+    <div class="lb-title">Leaderboard</div>
+    <div id="lb-rows"></div>
+  </div>
+  <div class="percentile" id="percentile-text"></div>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen" id="screen-game">
+  <div class="timer-text"><span id="timer-num">10</span>s</div>
+  <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+
+  <div class="question-text" id="question-text"></div>
+
+  <div class="photos-wrap">
+    <div class="photo-option" id="opt-left" onclick="answer('left')">
+      <img id="img-left" src="" alt="Option A" />
+    </div>
+    <div class="photo-option" id="opt-right" onclick="answer('right')">
+      <img id="img-right" src="" alt="Option B" />
+    </div>
+  </div>
+
+  <div class="swipe-hint">
+    <span class="arrow">←</span>
+    <span>Tap to choose</span>
+    <span class="arrow">→</span>
+  </div>
+
+  <div class="streak-bar">
+    <div class="streak-label">Streak</div>
+    <div class="streak-count" id="streak-display">0</div>
+  </div>
+</div>
+
+<!-- CORRECT SCREEN -->
+<div class="screen" id="screen-correct">
+  <div class="result-icon">✓</div>
+  <div class="result-title">Correct!</div>
+  <p style="text-align:center" id="correct-detail"></p>
+  <button class="btn" style="margin-top:32px" onclick="nextQuestion()">Next →</button>
+</div>
+
+<!-- WRONG SCREEN -->
+<div class="screen" id="screen-wrong">
+  <div class="result-icon" style="color:#c0392b">✗</div>
+  <div class="result-title">Better next time</div>
+  <p style="text-align:center" id="wrong-detail"></p>
+  <button class="btn" style="margin-top:32px" onclick="goHome()">Home</button>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+// Executive data — names, titles, bios, photo URLs from public JPMC pages
+const EXECUTIVES = [
+  {
+    id: "jamie-dimon",
+    name: "Jamie Dimon",
+    title: "Chairman & Chief Executive Officer",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/who-we-are/our-leadership/headshots/headshot-jamiedimon.png",
+    facts: ["has led the firm since 2005", "studied at Harvard Business School", "is among the longest-serving bank CEOs in the Fortune 500", "wrote the annual shareholder letter each year for nearly two decades"]
+  },
+  {
+    id: "ashley-bacon",
+    name: "Ashley Bacon",
+    title: "Chief Risk Officer",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-abacon.jpg",
+    facts: ["oversees all risk management for the firm", "joined the firm over two decades ago", "focuses on market and credit risk", "has a background in quantitative finance"]
+  },
+  {
+    id: "jeremy-barnum",
+    name: "Jeremy Barnum",
+    title: "Chief Financial Officer",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-jeremy-barnum.jpg",
+    facts: ["manages the firm's global finances", "joined the firm in 1994", "previously led investor relations", "is a Yale graduate"]
+  },
+  {
+    id: "lori-beer",
+    name: "Lori Beer",
+    title: "Global Chief Information Officer",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-lbeer.jpg",
+    facts: ["oversees technology infrastructure globally", "joined the firm in 2017", "previously worked at WellPoint", "leads tens of thousands of technology staff"]
+  },
+  {
+    id: "tim-berry",
+    name: "Tim Berry",
+    title: "Global Head of Corporate Responsibility",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-tim-berry.jpg",
+    facts: ["leads corporate responsibility strategy", "chairs the Mid-Atlantic Region", "focuses on community development initiatives", "oversees philanthropic investment"]
+  },
+  {
+    id: "mary-callahan-erdoes",
+    name: "Mary Callahan Erdoes",
+    title: "CEO, Asset & Wealth Management",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/ir/ceo-letters/2024/awm/awm-thumbnail.png",
+    facts: ["has led Asset & Wealth Management since 2009", "oversees trillions in client assets", "studied at Georgetown and Harvard", "is frequently named among the most powerful women in finance"]
+  },
+  {
+    id: "stacey-friedman",
+    name: "Stacey Friedman",
+    title: "General Counsel",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-sfriedman.jpg",
+    facts: ["leads the firm's legal department", "joined the firm in 2014", "previously worked at Sullivan & Cromwell", "oversees legal strategy globally"]
+  },
+  {
+    id: "teresa-heitsenrether",
+    name: "Teresa Heitsenrether",
+    title: "Chief Data & Analytics Officer",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-heitsenrether.jpg",
+    facts: ["leads the firm's AI and data strategy", "has been with the firm for over two decades", "oversees machine learning and analytics teams", "was previously in the investment bank"]
+  },
+  {
+    id: "marianne-lake",
+    name: "Marianne Lake",
+    title: "CEO, Consumer & Community Banking",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-marianne-lake.jpg",
+    facts: ["leads the largest division of the firm by customers", "was previously Chief Financial Officer", "joined the firm in 1999", "is frequently cited as one of the most powerful women in banking"]
+  },
+  {
+    id: "robin-leopold",
+    name: "Robin Leopold",
+    title: "Head of Human Resources",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-rleopold.jpg",
+    facts: ["oversees HR for over 300,000 employees", "joined the firm in 2019", "previously worked at Time Warner", "leads talent strategy and culture initiatives"]
+  },
+  {
+    id: "douglas-petno",
+    name: "Douglas B. Petno",
+    title: "Co-CEO, Commercial & Investment Bank",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-dpetno.jpg",
+    facts: ["co-leads the commercial and investment banking division", "has been with the firm for over 25 years", "previously ran commercial banking", "focuses on mid-market and corporate clients"]
+  },
+  {
+    id: "jennifer-piepszak",
+    name: "Jennifer Piepszak",
+    title: "Chief Operating Officer",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-jpiepszak.jpg",
+    facts: ["serves as the firm's Chief Operating Officer", "was previously co-CEO of Consumer & Community Banking", "joined the firm in 1994", "is a Colgate University graduate"]
+  },
+  {
+    id: "troy-rohrbaugh",
+    name: "Troy Rohrbaugh",
+    title: "Co-CEO, Commercial & Investment Bank",
+    photo: "https://www.jpmorganchase.com/content/dam/jpmorganchase/images/headshots/headshot-troy.jpg",
+    facts: ["co-leads the commercial and investment banking division", "previously ran global markets", "has been with the firm for over 20 years", "oversees trading and banking globally"]
+  }
+];
+
+// ─── QUESTION GENERATOR ──────────────────────────────────────────────────────
+// Returns a daily-seeded shuffled list of questions
+function getDailySeed() {
+  const d = new Date();
+  return d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate();
+}
+function seededRandom(seed) {
+  let s = seed;
+  return function() { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+function buildDailyQuestions() {
+  const rng = seededRandom(getDailySeed());
+  const execs = [...EXECUTIVES];
+  // Fisher-Yates with seeded RNG
+  for (let i = execs.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [execs[i], execs[j]] = [execs[j], execs[i]];
+  }
+  return execs.map((exec, i) => {
+    // pick a distractor
+    const others = EXECUTIVES.filter(e => e.id !== exec.id);
+    const distractor = others[Math.floor(rng() * others.length)];
+    const correctSide = rng() > 0.5 ? 'left' : 'right';
+    // question difficulty increases with streak — pick harder facts
+    const factIndex = Math.min(i, exec.facts.length - 1);
+    const questionTemplates = [
+      `Who ${exec.facts[factIndex]}?`,
+      `Which executive ${exec.facts[factIndex]}?`,
+      `This leader ${exec.facts[factIndex]}. Who are they?`,
+    ];
+    const qText = questionTemplates[Math.floor(rng() * questionTemplates.length)];
+    return {
+      exec,
+      distractor,
+      correctSide,
+      qText,
+      timeLimit: Math.max(4, 10 - Math.floor(i / 3)) // gets harder
+    };
+  });
+}
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+function loadData(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
+function saveData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+function getLeaderboard() { return loadData('jpm_leaderboard') || []; }
+function saveLeaderboard(lb) { saveData('jpm_leaderboard', lb); }
+function getMyPlayer() { return loadData('jpm_player'); }
+function saveMyPlayer(p) { saveData('jpm_player', p); }
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let player = null;
+let questions = [];
+let questionIndex = 0;
+let streak = 0;
+let timer = null;
+let timerSecondsLeft = 10;
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.onload = function() {
+  player = getMyPlayer();
+  if (player) {
+    showScreen('home');
+    renderHome();
+  } else {
+    showScreen('register');
+  }
+};
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+// ─── REGISTER ────────────────────────────────────────────────────────────────
+function registerPlayer() {
+  const nameInput = document.getElementById('register-name').value.trim();
+  if (!nameInput) return;
+  const lb = getLeaderboard();
+  const taken = lb.some(p => p.name.toLowerCase() === nameInput.toLowerCase());
+  if (taken) {
+    document.getElementById('name-error').style.display = 'block';
+    return;
+  }
+  player = { name: nameInput, topScore: 0, topDate: null };
+  saveMyPlayer(player);
+  showScreen('home');
+  renderHome();
+}
+
+// ─── HOME ────────────────────────────────────────────────────────────────────
+function renderHome() {
+  document.getElementById('home-name').textContent = player.name;
+  const btn = document.getElementById('play-btn');
+  btn.textContent = player.topScore > 0 ? 'Play Again' : 'Play';
+
+  const lb = getLeaderboard();
+  const rows = document.getElementById('lb-rows');
+  rows.innerHTML = '';
+
+  // merge player into lb if not present
+  let fullLb = [...lb];
+  const myEntry = fullLb.find(e => e.name === player.name);
+  if (!myEntry && player.topScore > 0) {
+    fullLb.push({ name: player.name, topScore: player.topScore, topDate: player.topDate });
+  } else if (myEntry) {
+    // update
+    myEntry.topScore = Math.max(myEntry.topScore, player.topScore);
+    myEntry.topDate = player.topDate;
+  }
+  fullLb.sort((a, b) => b.topScore - a.topScore);
+  const top10 = fullLb.slice(0, 10);
+
+  if (top10.length === 0) {
+    rows.innerHTML = '<div style="font-size:13px;color:#8a9ab5;text-align:center;padding:16px 0">No scores yet. Be the first!</div>';
+  } else {
+    top10.forEach((entry, i) => {
+      const isMe = entry.name === player.name;
+      const row = document.createElement('div');
+      row.className = 'lb-row' + (isMe ? ' highlight' : '');
+      row.innerHTML = `<span class="lb-rank">${i+1}</span><span class="lb-name">${entry.name}${isMe ? ' (you)' : ''}</span><span class="lb-score">${entry.topScore}</span><span class="lb-date">${entry.topDate || ''}</span>`;
+      rows.appendChild(row);
+    });
+  }
+
+  // percentile
+  const pctEl = document.getElementById('percentile-text');
+  if (player.topScore > 0 && fullLb.length > 1) {
+    const rank = fullLb.findIndex(e => e.name === player.name) + 1;
+    const pct = Math.round((1 - (rank / fullLb.length)) * 100);
+    pctEl.textContent = `You are better than ${pct}% of players`;
+  } else {
+    pctEl.textContent = '';
+  }
+}
+
+// ─── GAME ────────────────────────────────────────────────────────────────────
+function startGame() {
+  questions = buildDailyQuestions();
+  questionIndex = 0;
+  streak = 0;
+  showScreen('game');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  if (questionIndex >= questions.length) {
+    // Completed all questions — treat like a win
+    recordScore();
+    showScreen('home');
+    renderHome();
+    return;
+  }
+  clearInterval(timer);
+  const q = questions[questionIndex];
+  timerSecondsLeft = q.timeLimit;
+
+  document.getElementById('question-text').textContent = q.qText;
+  document.getElementById('streak-display').textContent = streak;
+
+  const leftExec = q.correctSide === 'left' ? q.exec : q.distractor;
+  const rightExec = q.correctSide === 'right' ? q.exec : q.distractor;
+  document.getElementById('img-left').src = leftExec.photo;
+  document.getElementById('img-right').src = rightExec.photo;
+
+  startTimer(q.timeLimit);
+}
+
+function startTimer(seconds) {
+  const bar = document.getElementById('timer-bar');
+  const num = document.getElementById('timer-num');
+  timerSecondsLeft = seconds;
+  bar.style.width = '100%';
+  num.textContent = seconds;
+
+  const interval = 100;
+  const steps = (seconds * 1000) / interval;
+  let step = 0;
+
+  clearInterval(timer);
+  timer = setInterval(() => {
+    step++;
+    const pct = Math.max(0, 100 - (step / steps) * 100);
+    bar.style.width = pct + '%';
+    const secsLeft = Math.ceil((steps - step) / (1000 / interval));
+    num.textContent = secsLeft;
+    if (step >= steps) {
+      clearInterval(timer);
+      handleWrong(true);
+    }
+  }, interval);
+}
+
+function answer(side) {
+  clearInterval(timer);
+  const q = questions[questionIndex];
+  if (side === q.correctSide) {
+    handleCorrect();
+  } else {
+    handleWrong(false);
+  }
+}
+
+function handleCorrect() {
+  streak++;
+  document.getElementById('correct-detail').textContent = `${questions[questionIndex].exec.name} — ${questions[questionIndex].exec.title}`;
+  showConfetti();
+  showScreen('correct');
+}
+
+function handleWrong(timeout) {
+  const q = questions[questionIndex];
+  const detail = timeout
+    ? `Time's up! It was ${q.exec.name} — ${q.exec.title}`
+    : `That was ${q.distractor.name}. The answer was ${q.exec.name} — ${q.exec.title}`;
+  document.getElementById('wrong-detail').textContent = detail;
+  recordScore();
+  showScreen('wrong');
+}
+
+function nextQuestion() {
+  questionIndex++;
+  showScreen('game');
+  loadQuestion();
+}
+
+function goHome() {
+  streak = 0;
+  showScreen('home');
+  renderHome();
+}
+
+function recordScore() {
+  if (streak > (player.topScore || 0)) {
+    player.topScore = streak;
+    const now = new Date();
+    player.topDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    saveMyPlayer(player);
+
+    // update leaderboard
+    const lb = getLeaderboard();
+    const entry = lb.find(e => e.name === player.name);
+    if (entry) {
+      entry.topScore = player.topScore;
+      entry.topDate = player.topDate;
+    } else {
+      lb.push({ name: player.name, topScore: player.topScore, topDate: player.topDate });
+    }
+    saveLeaderboard(lb);
+  }
+}
+
+// ─── CONFETTI ────────────────────────────────────────────────────────────────
+function showConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = Array.from({ length: 80 }, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    r: Math.random() * 6 + 3,
+    d: Math.random() * 2 + 1,
+    color: Math.random() > 0.5 ? '#0a1628' : '#d4af37',
+    tilt: Math.random() * 10 - 10,
+    tiltAngle: 0,
+    tiltAngleInc: Math.random() * 0.07 + 0.05
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.tiltAngle += p.tiltAngleInc;
+      p.y += p.d;
+      p.tilt = Math.sin(p.tiltAngle) * 12;
+      ctx.beginPath();
+      ctx.lineWidth = p.r;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+      ctx.stroke();
+    });
+    frame++;
+    if (frame < 80) requestAnimationFrame(draw);
+    else canvas.style.display = 'none';
+  }
+  draw();
+}
+
+// ─── SWIPE SUPPORT ───────────────────────────────────────────────────────────
+let touchStartX = 0;
+document.getElementById('screen-game').addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+});
+document.getElementById('screen-game').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) answer(dx < 0 ? 'left' : 'right');
+});
+</script>
+</body>
+</html>
